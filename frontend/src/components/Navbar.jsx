@@ -3,7 +3,6 @@ import { Link, NavLink, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, Search, User, Heart, ShoppingCart, X } from "lucide-react";
 import { useCart } from "../context/CartContext";
-import { getImageSrc } from "../utils/imageMap";
 import { useAuth } from "../context/AuthContext";
 
 const navItems = [
@@ -136,7 +135,7 @@ const Navbar = () => {
               </span>
             )}
           </Link>
-          <div className="relative">
+          <div className="relative inline-flex">
             <button
               type="button"
               onClick={() => setCartOpen(!cartOpen)}
@@ -144,84 +143,13 @@ const Navbar = () => {
               aria-label="Cart"
             >
               <ShoppingCart className="h-4 w-4" />
-              {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-orange-500 px-1.5 text-[11px] font-bold text-white">
-                  {cartCount}
-                </span>
-              )}
             </button>
-            <AnimatePresence>
-              {cartOpen && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 top-full z-20 mt-4 w-[320px] rounded-[2rem] border border-slate-200 bg-white p-5 shadow-soft"
-                >
-                  <div className="flex items-center justify-between">
-                    <p className="text-sm font-semibold text-slate-900">
-                      Shopping Cart
-                    </p>
-                    <button
-                      type="button"
-                      onClick={() => setCartOpen(false)}
-                      className="text-slate-500 transition hover:text-slate-900"
-                    >
-                      Close
-                    </button>
-                  </div>
-                  <div className="mt-4 space-y-4 max-h-64 overflow-y-auto pr-1">
-                    {cartItems.length > 0 ? (
-                      cartItems.map((item) => (
-                        <div
-                          key={item.id}
-                          className="rounded-3xl border border-slate-200 bg-slate-50 p-4"
-                        >
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={getImageSrc(item.image) || item.image}
-                              alt={item.name}
-                              className="h-14 w-14 rounded-3xl object-cover"
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="truncate text-sm font-semibold text-slate-950">
-                                {item.name}
-                              </p>
-                              <p className="mt-1 text-xs text-slate-500">
-                                Qty {item.quantity}
-                              </p>
-                            </div>
-                            <p className="text-sm font-semibold text-slate-900">
-                              ₹{(item.price * item.quantity).toFixed(2)}
-                            </p>
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <p className="text-sm text-slate-500">
-                        Your cart is empty. Add a product to get started.
-                      </p>
-                    )}
-                  </div>
-                  <Link
-                    to="/cart"
-                    onClick={() => {
-                      setCartOpen(false);
 
-                      setTimeout(() => {
-                        window.scrollTo({
-                          top: 0,
-                          behavior: "smooth",
-                        });
-                      }, 100);
-                    }}
-                    className="mt-4 inline-flex w-full items-center justify-center rounded-3xl bg-slate-950 px-4 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-                  >
-                    View cart
-                  </Link>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            {cartCount > 0 && (
+              <span className="absolute -top-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-orange-500 text-[12px] font-bold text-white">
+                {cartCount}
+              </span>
+            )}
           </div>
         </div>
 

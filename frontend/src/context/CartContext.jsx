@@ -1,4 +1,11 @@
-import { createContext, useContext, useMemo, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useMemo,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 
 const CartContext = createContext(null);
 
@@ -31,7 +38,7 @@ export const CartProvider = ({ children }) => {
   }, [wishlist]);
 
   // ADD TO CART
-  const addToCart = (product) => {
+  const addToCart = useCallback((product) => {
     setCartItems((current) => {
       const existing = current.find((item) => item.id === product.id);
 
@@ -57,9 +64,9 @@ export const CartProvider = ({ children }) => {
       ];
     });
 
-    // OPEN CART SIDEBAR
+    // OPEN CART DRAWER
     setCartOpen(true);
-  };
+  }, []);
 
   // UPDATE PRODUCT QUANTITY
   const updateQuantity = (productId, quantity) => {
@@ -124,7 +131,7 @@ export const CartProvider = ({ children }) => {
       setCartOpen,
       clearCart,
     }),
-    [cartItems, cartCount, cartTotal, wishlist, cartOpen],
+    [cartItems, cartCount, cartTotal, wishlist, cartOpen, addToCart],
   );
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
@@ -6,20 +7,24 @@ import { getImageSrc } from "../utils/imageMap";
 const Cart = () => {
   const { cartItems, clearCart, removeFromCart, updateQuantity } = useCart();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   const total = cartItems.reduce(
     (sum, item) => sum + item.price * item.quantity,
     0,
   );
 
   return (
-    <section className="space-y-8 pt-10">
+    <section className="space-y-8 pt-2 overflow-x-hidden">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.3em] text-orange-600">
             Cart
           </p>
 
-          <h1 className="mt-2 text-4xl font-black text-slate-950">
+          <h1 className="mt-1 text-4xl font-black text-slate-950">
             Your shopping bag
           </h1>
         </div>
@@ -110,7 +115,7 @@ const Cart = () => {
             ))}
           </div>
 
-          <aside className="space-y-4 rounded-[2rem] bg-white p-6 shadow-soft">
+          <aside className="space-y-4 rounded-[2rem] bg-white p-6 shadow-soft lg:sticky lg:top-24 lg:self-start">
             <p className="text-sm uppercase tracking-[0.3em] text-orange-600">
               Order summary
             </p>
