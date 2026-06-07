@@ -16,9 +16,25 @@ connectDB();
 
 const app = express();
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://shop-x-ecommerce-chi.vercel.app",
+  "https://shop-x-ecommerce-2coxc171n-pradeevermas-projects.vercel.app",
+  "https://shop-x-ecommerce-9goyxiery-pradeevermas-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Postman ya direct browser requests ke liye
+      if (!origin) return callback(null, true);
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
   }),
 );
