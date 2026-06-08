@@ -1,22 +1,29 @@
 import Product from "../models/Product.js";
 
+const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
 const getProducts = async (req, res) => {
   const { search, category } = req.query;
   const filter = {};
 
-  if (search) {
+  if (search?.trim()) {
+    const searchTerm = escapeRegex(search.trim());
     filter.$or = [
-      { name: { $regex: search, $options: "i" } },
-      { description: { $regex: search, $options: "i" } },
-      { brand: { $regex: search, $options: "i" } },
+      { name: { $regex: searchTerm, $options: "i" } },
+      { description: { $regex: searchTerm, $options: "i" } },
+      { brand: { $regex: searchTerm, $options: "i" } },
+      { category: { $regex: searchTerm, $options: "i" } },
     ];
   }
 
-  if (category && category !== "All") {
-    filter.category = category;
+  if (category?.trim() && category !== "All") {
+    filter.category = {
+      $regex: `^${escapeRegex(category.trim())}$`,
+      $options: "i",
+    };
   }
 
-  const products = await Product.find(filter);
+  const products = await Product.find(filter).lean();
 
   res.json(products);
 };

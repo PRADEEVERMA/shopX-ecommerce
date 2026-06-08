@@ -2,6 +2,7 @@ import { BrowserRouter } from "react-router-dom";
 import { CartProvider } from "./context/CartContext";
 import { AuthProvider } from "./context/AuthContext";
 import CartDrawer from "./components/CartDrawer";
+import ScrollToTop from "./components/ScrollToTop";
 import AppRoutes from "./routes/AppRoutes";
 
 function App() {
@@ -10,6 +11,7 @@ function App() {
       <AuthProvider>
         <CartProvider>
           <BrowserRouter>
+            <ScrollToTop />
             <CartDrawer />
             <AppRoutes />
           </BrowserRouter>

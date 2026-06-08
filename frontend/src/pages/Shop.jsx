@@ -1,44 +1,51 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductSection from "../components/ProductSection";
 import API from "../api";
 
 const Shop = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const searchQuery = searchParams.get("search") || "";
   const categoryQuery = searchParams.get("category") || "";
 
-  const [selectedCategory, setSelectedCategory] = useState("All");
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const productsRef = useRef(null);
+  const selectedCategory = categoryQuery || "All";
 
   // FETCH PRODUCTS FROM BACKEND
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
-        let url = "/products";
-        if (searchQuery) {
-          url += `?search=${encodeURIComponent(searchQuery)}`;
-        }
-        const { data } = await API.get(url);
+        const params = new URLSearchParams();
+        if (searchQuery.trim()) params.set("search", searchQuery.trim());
+        if (categoryQuery.trim()) params.set("category", categoryQuery.trim());
+
+        const url = `/products${params.toString() ? `?${params.toString()}` : ""}`;
+        const { data } = await API.get(url, { signal: controller.signal });
         setProducts(data || []);
-        console.log("Shop products:", data || []);
       } catch (err) {
+        if (err.name === "CanceledError") return;
         setError(
           err.response?.data?.message ||
             "Failed to load products. Please try again.",
         );
         console.error("Error fetching products:", err);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProducts();
+
+    return () => controller.abort();
   }, [searchQuery, categoryQuery]);
 
   const categories = useMemo(() => {
@@ -51,24 +58,14 @@ const Shop = () => {
     ].sort();
   }, [products]);
 
-  // CATEGORY FILTER
-  useEffect(() => {
-    if (categoryQuery) {
-      setSelectedCategory(categoryQuery);
-    } else if (searchQuery === "electronics") {
-      setSelectedCategory("Electronics");
-    } else if (searchQuery === "fashion") {
-      setSelectedCategory("Fashion");
-    } else if (searchQuery === "home-kitchen") {
-      setSelectedCategory("Home & Kitchen");
-    } else if (searchQuery === "beauty") {
-      setSelectedCategory("Beauty & Health");
-    } else if (searchQuery === "sports") {
-      setSelectedCategory("Sports");
-    } else {
-      setSelectedCategory("All");
-    }
+  const handleCategoryChange = useCallback((category) => {
+    const params = new URLSearchParams();
+    if (searchQuery.trim()) params.set("search", searchQuery.trim());
+    if (category !== "All") params.set("category", category);
+    setSearchParams(params);
+  }, [searchQuery, setSearchParams]);
 
+  useEffect(() => {
     setTimeout(() => {
       productsRef.current?.scrollIntoView({
         behavior: "smooth",
@@ -76,10 +73,6 @@ const Shop = () => {
       });
     }, 100);
   }, [searchQuery, categoryQuery]);
-
-  console.log("Selected:", selectedCategory);
-  console.log("Products:", products);
-  console.log("Categories:", categories);
 
   return (
     <section className="space-y-10">
@@ -105,7 +98,7 @@ const Shop = () => {
           products={products}
           categories={categories}
           selectedCategory={selectedCategory}
-          setSelectedCategory={setSelectedCategory}
+          setSelectedCategory={handleCategoryChange}
           loading={loading}
           error={error}
         />

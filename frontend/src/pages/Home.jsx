@@ -8,28 +8,35 @@ import API from "../api";
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const productsRef = useRef(null);
   const promoRef = useRef(null);
 
   // FETCH PRODUCTS FROM API
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       setLoading(true);
       setError(null);
       try {
-        const { data } = await API.get("/products");
+        const { data } = await API.get("/products", { signal: controller.signal });
         setProducts(data || []);
       } catch (err) {
+        if (err.name === "CanceledError") return;
         setError(err.response?.data?.message || "Failed to load products");
         console.error("Error fetching products:", err);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchProducts();
+
+    return () => controller.abort();
   }, []);
 
   const scrollToProducts = () => {
@@ -50,9 +57,6 @@ const Home = () => {
       ),
     ].sort();
   }, [products]);
-
-  console.log("Selected:", selectedCategory);
-  console.log("Products:", products);
 
   return (
     <div className="space-y-10">

@@ -86,6 +86,7 @@ const AppRoutes = () => (
         }
       />
       <Route path="login" element={<Login />} />
+      <Route path="signup" element={<Register />} />
       <Route path="register" element={<Register />} />
     </Route>
     <Route path="*" element={<Navigate to="/" replace />} />

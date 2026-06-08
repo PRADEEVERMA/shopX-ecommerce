@@ -41,10 +41,6 @@ const ProductSection = ({
     );
   }, [products, activeCategory]);
 
-  console.log("Selected:", activeCategory);
-  console.log("Products:", products);
-  console.log("Filtered:", filteredProducts);
-
   return (
     <section id="products" className="space-y-8">
       {/* TOP SECTION */}

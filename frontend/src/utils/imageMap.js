@@ -12,6 +12,18 @@ import lampImg from "../assets/images/home-lamp.jpg";
 import kitchenImg from "../assets/images/home-kitchen.webp";
 
 export const imageMap = {
+  watchImg,
+  shoesImg,
+  cameraImg,
+  headphonesImg,
+  earbudsImg,
+  bagImg,
+  fashionGirlImg,
+  sunglassesImg,
+  sofaImg,
+  chairImg,
+  lampImg,
+  kitchenImg,
   "p-watch.jpg": watchImg,
   "k-shoes.webp": shoesImg,
   "p-camera.jpg": cameraImg,
@@ -19,7 +31,7 @@ export const imageMap = {
   "cat-electronics.jpg": earbudsImg,
   "p-bag.jpg": bagImg,
   "n-Bags.avif": fashionGirlImg,
-  "k-glass.webp": sunglassesImg,
+  "sunglasses.webp": sunglassesImg,
   "home-sofa.webp": sofaImg,
   "home-chair.jpg": chairImg,
   "home-lamp.jpg": lampImg,
