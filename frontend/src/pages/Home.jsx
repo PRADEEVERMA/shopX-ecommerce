@@ -4,6 +4,7 @@ import Sidebar from "../components/Sidebar";
 import PromoCards from "../components/PromoCards";
 import ProductSection from "../components/ProductSection";
 import API from "../api";
+import { getCachedProducts, setCachedProducts } from "../utils/productCache";
 
 const Home = () => {
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -18,11 +19,20 @@ const Home = () => {
     const controller = new AbortController();
 
     const fetchProducts = async () => {
-      setLoading(true);
+      const cacheKey = "/products";
+      const cachedProducts = getCachedProducts(cacheKey);
+      if (cachedProducts) {
+        setProducts(cachedProducts);
+        setLoading(false);
+      } else {
+        setLoading(true);
+      }
       setError(null);
       try {
-        const { data } = await API.get("/products", { signal: controller.signal });
-        setProducts(data || []);
+        const { data } = await API.get(cacheKey, { signal: controller.signal });
+        const products = data || [];
+        setProducts(products);
+        setCachedProducts(cacheKey, products);
       } catch (err) {
         if (err.name === "CanceledError") return;
         setError(err.response?.data?.message || "Failed to load products");

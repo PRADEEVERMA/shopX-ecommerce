@@ -12,7 +12,7 @@ import orderRoutes from "./routes/orderRoutes.js";
 
 dotenv.config();
 
-connectDB();
+await connectDB();
 
 const app = express();
 
@@ -36,6 +36,8 @@ app.use(
       return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
+    exposedHeaders: ["Server-Timing"],
+    maxAge: 86400,
   }),
 );
 

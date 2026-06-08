@@ -1,10 +1,12 @@
 import Product from "../models/Product.js";
+import { performance } from "node:perf_hooks";
 
 const escapeRegex = (value) => String(value).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const getProducts = async (req, res) => {
   const { search, category } = req.query;
   const filter = {};
+  const startedAt = performance.now();
 
   if (search?.trim()) {
     const searchTerm = escapeRegex(search.trim());
@@ -23,8 +25,13 @@ const getProducts = async (req, res) => {
     };
   }
 
-  const products = await Product.find(filter).lean();
+  const products = await Product.find(filter)
+    .select("name description price oldPrice image category brand countInStock rating reviews")
+    .lean();
+  const dbDuration = performance.now() - startedAt;
 
+  res.set("Cache-Control", "public, max-age=60, stale-while-revalidate=300");
+  res.set("Server-Timing", `db;dur=${dbDuration.toFixed(1)}`);
   res.json(products);
 };
 

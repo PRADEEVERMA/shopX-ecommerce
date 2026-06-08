@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import ProductSection from "../components/ProductSection";
 import API from "../api";
+import { getCachedProducts, setCachedProducts } from "../utils/productCache";
 
 const Shop = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -19,7 +20,6 @@ const Shop = () => {
     const controller = new AbortController();
 
     const fetchProducts = async () => {
-      setLoading(true);
       setError(null);
       try {
         const params = new URLSearchParams();
@@ -27,8 +27,18 @@ const Shop = () => {
         if (categoryQuery.trim()) params.set("category", categoryQuery.trim());
 
         const url = `/products${params.toString() ? `?${params.toString()}` : ""}`;
+        const cachedProducts = getCachedProducts(url);
+        if (cachedProducts) {
+          setProducts(cachedProducts);
+          setLoading(false);
+        } else {
+          setLoading(true);
+        }
+
         const { data } = await API.get(url, { signal: controller.signal });
-        setProducts(data || []);
+        const products = data || [];
+        setProducts(products);
+        setCachedProducts(url, products);
       } catch (err) {
         if (err.name === "CanceledError") return;
         setError(
